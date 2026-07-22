@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { cartCount } from "../cart.js";
 
@@ -15,7 +15,6 @@ export default function Header() {
   const [user, setUser] = useState(parseUser());
 
   const navigate = useNavigate();
-
   const isAdmin = user?.role === "admin";
 
   useEffect(() => {
@@ -43,68 +42,52 @@ export default function Header() {
   };
 
   return (
-    <header className="site-header">
-      <Link to="/" className="brand" aria-label="Adeline inicio">
+    <header className="ad-header-clean">
+      <div className="ad-header-left">
+        <button className="ad-menu-btn" type="button" aria-label="Menú">
+          ☰
+        </button>
+
+        <button className="ad-search-icon" type="button" aria-label="Buscar">
+          ⌕
+        </button>
+      </div>
+
+      <Link to="/" className="ad-logo-link" aria-label="Adeline inicio">
         <img
           src="/brand/adeline-logo-transparent.png"
           alt="Adeline"
-          className="adeline-logo"
+          className="ad-header-logo"
         />
       </Link>
 
-      <nav className="main-nav">
-        <NavLink to="/">Inicio</NavLink>
-        <a href="/#novedades">Novedades</a>
-        <a href="/#tienda">Tienda</a>
-        <a href="/#coleccion">Colección</a>
-        <a href="/#contacto">Contacto</a>
-
+      <div className="ad-header-right">
         {isAdmin && (
           <>
-            <NavLink to="/admin/productos" className="admin-header-link">
+            <Link className="ad-admin-mini" to="/admin/productos">
               Productos
-            </NavLink>
+            </Link>
 
-            <NavLink to="/admin/pedidos" className="admin-header-link">
+            <Link className="ad-admin-mini" to="/admin/pedidos">
               Pedidos
-            </NavLink>
+            </Link>
           </>
         )}
-      </nav>
-
-      <div className="header-actions">
-        <button className="icon-btn" title="Buscar" type="button">
-          ⌕
-        </button>
-
-        <Link className="bag-link" to="/carrito" title="Carrito">
-          ♡
-          <span className="bag-count">{count}</span>
-        </Link>
-
-        <span className="header-sep" />
 
         {user ? (
-          <>
-            {isAdmin && (
-              <Link className="admin-link" to="/admin/productos">
-                Admin
-              </Link>
-            )}
-
-            <span className="user-pill">
-              {user.nombre || "Admin"} · {user.role}
-            </span>
-
-            <button className="logout-btn" type="button" onClick={logout}>
-              Salir
-            </button>
-          </>
+          <button className="ad-user-icon" type="button" onClick={logout} title="Salir">
+            ♙
+          </button>
         ) : (
-          <Link className="admin-link" to="/login">
-            Admin 🔒
+          <Link className="ad-user-icon" to="/login" title="Admin">
+            ♙
           </Link>
         )}
+
+        <Link className="ad-cart-icon" to="/carrito" title="Carrito">
+          ♡
+          <span>{count}</span>
+        </Link>
       </div>
     </header>
   );

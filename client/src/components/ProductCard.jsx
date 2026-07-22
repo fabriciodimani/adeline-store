@@ -1,60 +1,74 @@
 import { Link } from "react-router-dom";
-import { getProductMainImage } from "../utils/productImages.js";
+import { getProductImages } from "../utils/productImages.js";
 
 const money = (n) => Number(n || 0).toLocaleString("es-AR");
+const FALLBACK = "/brand/adeline-logo-transparent.png";
 
-export default function ProductCard({ product }) {
-  const stock = (product.variants || []).reduce(
+function hasRealImage(product) {
+  const hasImageIds = Array.isArray(product?.imageIds) && product.imageIds.length > 0;
+  const hasImages = Array.isArray(product?.images) && product.images.length > 0;
+  return Boolean(hasImageIds || hasImages || product?.imageId || product?.image || product?.imageUrl);
+}
+
+export default function ProductCard({ product, imageOnly = false }) {
+  const stock = (product?.variants || []).reduce(
     (acc, v) => acc + Number(v.stock || 0),
     0
   );
 
-  const img = getProductMainImage(product);
+  const images = getProductImages(product);
+  const mainImg = images[0] || FALLBACK;
+  const hoverImg = images[1] || mainImg;
+  const hasImage = hasRealImage(product);
 
-  return (
-    <article className="product-card">
-      <Link to={`/producto/${product._id}`} className="product-image-wrap">
-        {product.badge && <span className="product-badge">{product.badge}</span>}
-        <span className="heart">♡</span>
-
+  if (imageOnly) {
+    return (
+      <Link to={`/producto/${product._id}`} className="adeline-image-only-card">
         <img
-          src={img}
+          src={mainImg}
           alt={product.nombre}
           loading="lazy"
           onError={(e) => {
-            e.currentTarget.src = "/brand/adeline-logo-transparent.png";
+            e.currentTarget.src = FALLBACK;
+          }}
+        />
+      </Link>
+    );
+  }
+
+  return (
+    <article className="ad-product-card">
+      <Link to={`/producto/${product._id}`} className="ad-product-img-wrap">
+        {hasImage && (
+          <span className={stock > 0 ? "ad-product-tag dark" : "ad-product-tag red"}>
+            {stock > 0 ? "NUEVO" : "SIN STOCK"}
+          </span>
+        )}
+
+        <img
+          className="ad-product-img main"
+          src={mainImg}
+          alt={product.nombre}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = FALLBACK;
+          }}
+        />
+
+        <img
+          className="ad-product-img hover"
+          src={hoverImg}
+          alt={product.nombre}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = mainImg || FALLBACK;
           }}
         />
       </Link>
 
-      <div className="product-info">
-        <p className="product-name">{product.nombre}</p>
-        <p className="product-price">ARS {money(product.precioVenta)}</p>
-
-        <div className="swatches">
-          {[...new Set((product.variants || []).map((v) => v.color))]
-            .slice(0, 4)
-            .map((c, i) => (
-              <span key={c} className={`swatch swatch-${i}`} title={c} />
-            ))}
-        </div>
-
-        <div className="sizes">
-          {[...new Set((product.variants || []).map((v) => v.size))]
-            .slice(0, 6)
-            .map((s) => (
-              <span key={s}>{s}</span>
-            ))}
-        </div>
-
-        <p className={stock > 2 ? "stock ok" : stock > 0 ? "stock low" : "stock none"}>
-          <span />
-          {stock > 2
-            ? "Stock disponible"
-            : stock > 0
-            ? "Últimas unidades"
-            : "Sin stock"}
-        </p>
+      <div className="ad-product-info">
+        <p className="ad-product-name">{product.nombre}</p>
+        <p className="ad-product-price">${money(product.precioVenta)}</p>
       </div>
     </article>
   );
