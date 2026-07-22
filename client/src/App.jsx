@@ -9,6 +9,7 @@ import AdminProducts from "./pages/AdminProducts.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import OrderConfirmed from "./pages/OrderConfirmed.jsx";
 import AdminOrders from "./pages/AdminOrders.jsx";
+import Shop from "./pages/Shop.jsx";
 
 function parseUser() {
   try {
@@ -33,12 +34,13 @@ export default function App() {
 
         {/* Producto público */}
         <Route path="/producto/:id" element={<ProductDetail />} />
+        <Route path="/tienda" element={<Shop />} />
 
         {/* Compra */}
         <Route path="/carrito" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/pedido-confirmado" element={<OrderConfirmed />} />
-
+        
         {/* Login */}
         <Route path="/login" element={<Login />} />
 

@@ -9,31 +9,73 @@ import { getProductImages } from "../utils/productImages.js";
 const money = (n) => Number(n || 0).toLocaleString("es-AR");
 
 function findVariant(product, size, color) {
-  return (product?.variants || []).find((v) => v.size === size && v.color === color);
+  return (product?.variants || []).find(
+    (v) => v.size === size && v.color === color
+  );
 }
 
+function hasProductImage(product) {
+  const hasImageIds =
+    Array.isArray(product?.imageIds) && product.imageIds.length > 0;
 
+  const hasImages =
+    Array.isArray(product?.images) && product.images.length > 0;
+
+  return Boolean(
+    hasImageIds ||
+      hasImages ||
+      product?.imageId ||
+      product?.image ||
+      product?.imageUrl
+  );
+}
+
+function getRandomRelatedProducts(products, currentProductId, count = 4) {
+  if (!Array.isArray(products)) return [];
+
+  const candidates = products.filter((p) => {
+    const sameProduct = String(p?._id) === String(currentProductId);
+    return !sameProduct && hasProductImage(p);
+  });
+
+  return [...candidates].sort(() => Math.random() - 0.5).slice(0, count);
+}
 
 export default function ProductDetail() {
-
-  
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
+  const [relatedPool, setRelatedPool] = useState([]);
+
   const [activeImg, setActiveImg] = useState(0);
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [qty, setQty] = useState(1);
   const [msg, setMsg] = useState("");
-  
+
   useEffect(() => {
-    const fallback = mockProducts.find((p) => p._id === id) || mockProducts[0];
+    const fallback =
+      mockProducts.find((p) => String(p._id) === String(id)) || mockProducts[0];
 
     apiGet(`/api/products/${id}`)
       .then((data) => setProduct(data.item || data))
       .catch(() => setProduct(fallback));
   }, [id]);
+
+  useEffect(() => {
+    apiGet("/api/products")
+      .then((data) => {
+        const list = Array.isArray(data?.items) ? data.items : data;
+
+        if (Array.isArray(list)) {
+          setRelatedPool(list);
+        }
+      })
+      .catch(() => {
+        setRelatedPool(mockProducts);
+      });
+  }, []);
 
   useEffect(() => {
     const first = product?.variants?.[0];
@@ -44,7 +86,6 @@ export default function ProductDetail() {
       setQty(1);
     }
 
-    // ✅ clave: cuando cambia el producto/fotos, vuelve a la primera imagen
     setActiveImg(0);
   }, [product?._id, product?.imageIds?.join("|"), product?.images?.join("|")]);
 
@@ -65,6 +106,10 @@ export default function ProductDetail() {
     ],
     [product, size]
   );
+
+  const relatedProducts = useMemo(() => {
+    return getRandomRelatedProducts(relatedPool, product?._id, 4);
+  }, [relatedPool, product?._id]);
 
   const variant = findVariant(product, size, color);
   const stock = Number(variant?.stock || 0);
@@ -93,7 +138,9 @@ export default function ProductDetail() {
 
   const handleBuyNow = (e) => {
     e.preventDefault();
+
     if (!canBuy) return;
+
     handleAdd();
     navigate("/carrito");
   };
@@ -104,8 +151,15 @@ export default function ProductDetail() {
 
   return (
     <main className="container detail-page">
-      <div className="breadcrumb">
-        <Link to="/">Inicio</Link> / Tienda / {product.tipo} / {product.nombre}
+      <div className="detail-top-row">
+        <div className="breadcrumb">
+          <Link to="/">Inicio</Link> / <Link to="/tienda">Tienda</Link> /{" "}
+          {product.tipo} / {product.nombre}
+        </div>
+
+        <Link to="/tienda" className="detail-back-shop">
+          Volver a la tienda →
+        </Link>
       </div>
 
       <section className="detail-layout">
@@ -129,7 +183,10 @@ export default function ProductDetail() {
         </aside>
 
         <section className="main-photo">
-          {product.badge && <span className="product-badge">{product.badge}</span>}
+          {product.badge && (
+            <span className="product-badge">{product.badge}</span>
+          )}
+
           <span className="heart big">♡</span>
 
           <img
@@ -168,7 +225,11 @@ export default function ProductDetail() {
                 className={s === size ? "selected" : ""}
                 onClick={() => {
                   setSize(s);
-                  const c = (product.variants || []).find((v) => v.size === s)?.color || "";
+
+                  const c =
+                    (product.variants || []).find((v) => v.size === s)
+                      ?.color || "";
+
                   setColor(c);
                   setQty(1);
                 }}
@@ -196,14 +257,23 @@ export default function ProductDetail() {
             ))}
           </div>
 
-          <p className={stock > 2 ? "stock ok" : stock > 0 ? "stock low" : "stock none"}>
+          <p
+            className={
+              stock > 2 ? "stock ok" : stock > 0 ? "stock low" : "stock none"
+            }
+          >
             <span />
-            {stock > 0 ? `${stock} disponible${stock === 1 ? "" : "s"}` : "Sin stock"}
+            {stock > 0
+              ? `${stock} disponible${stock === 1 ? "" : "s"}`
+              : "Sin stock"}
           </p>
 
           <div className="purchase-row">
             <div className="qty-control">
-              <button onClick={() => setQty(Math.max(1, qty - 1))} type="button">
+              <button
+                onClick={() => setQty(Math.max(1, qty - 1))}
+                type="button"
+              >
                 −
               </button>
 
@@ -218,7 +288,12 @@ export default function ProductDetail() {
               </button>
             </div>
 
-            <button className="add-cart" disabled={!canBuy} onClick={handleAdd} type="button">
+            <button
+              className="add-cart"
+              disabled={!canBuy}
+              onClick={handleAdd}
+              type="button"
+            >
               ▣ AGREGAR AL CARRITO
             </button>
           </div>
@@ -252,14 +327,16 @@ export default function ProductDetail() {
         <div>
           <b>DESCRIPCIÓN</b>
         </div>
+
         <div>GUÍA DE TALLES</div>
+
         <div>ENVÍOS Y CAMBIOS</div>
       </section>
 
       <section className="description-block">
         <p>
-          Prenda premium seleccionada para una experiencia cómoda, elegante y duradera.
-          Ideal para combinar con básicos o prendas de temporada.
+          Prenda premium seleccionada para una experiencia cómoda, elegante y
+          duradera. Ideal para combinar con básicos o prendas de temporada.
         </p>
 
         <ul>
@@ -269,16 +346,17 @@ export default function ProductDetail() {
         </ul>
       </section>
 
-      <h3 className="related-title">También te puede interesar</h3>
+      {relatedProducts.length > 0 && (
+        <>
+          <h3 className="related-title">También te puede interesar</h3>
 
-      <div className="related-grid">
-        {mockProducts
-          .filter((p) => p._id !== product._id)
-          .slice(0, 4)
-          .map((p) => (
-            <ProductCard key={p._id} product={p} />
-          ))}
-      </div>
+          <div className="related-grid">
+            {relatedProducts.map((p) => (
+              <ProductCard key={p._id || p.codigo} product={p} compact />
+            ))}
+          </div>
+        </>
+      )}
     </main>
   );
 }

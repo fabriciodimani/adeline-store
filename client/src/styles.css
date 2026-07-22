@@ -3702,3 +3702,269 @@ body {
 .buy-now-btn {
   background: #fff !important;
 }
+
+/* =====================================================
+   ADELINE - PÁGINA TODOS LOS PRODUCTOS
+===================================================== */
+
+.adeline-shop-page {
+  width: min(1500px, calc(100% - 72px));
+  margin: 0 auto;
+  padding: 56px 0 80px;
+  background: #fff;
+}
+
+.adeline-shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.adeline-shop-header p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #777;
+}
+
+.adeline-shop-header h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(42px, 5vw, 72px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.adeline-shop-header span {
+  display: block;
+  margin-top: 8px;
+  color: #555;
+  font-size: 13px;
+}
+
+.adeline-shop-back {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #111;
+  padding-bottom: 4px;
+}
+
+.adeline-shop-toolbar {
+  margin-bottom: 34px;
+}
+
+.adeline-shop-toolbar input {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #dedede;
+  background: #f7f7f7;
+  padding: 0 16px;
+  outline: none;
+  font-size: 14px;
+}
+
+.adeline-shop-toolbar input:focus {
+  border-color: #111;
+  background: #fff;
+}
+
+.adeline-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 28px 24px;
+}
+
+@media (max-width: 760px) {
+  .adeline-shop-page {
+    width: calc(100% - 28px);
+    padding: 34px 0 60px;
+  }
+
+  .adeline-shop-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .adeline-shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 14px;
+  }
+
+  .adeline-shop-grid .modern-product-image {
+    height: 260px !important;
+  }
+}
+
+/* BOTÓN VOLVER EN TIENDA */
+.adeline-shop-back {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: #111 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  border-bottom: 2px solid #111 !important;
+  padding-bottom: 5px !important;
+  white-space: nowrap !important;
+}
+
+.adeline-shop-back:hover {
+  opacity: 0.65;
+}
+
+@media (max-width: 760px) {
+  .adeline-shop-header {
+    gap: 18px !important;
+  }
+
+  .adeline-shop-back {
+    margin-top: 4px !important;
+  }
+}
+
+/* =====================================================
+   ADELINE - CARRITO FONDO BLANCO
+===================================================== */
+
+.cart-page,
+.cart-shell,
+.cart-layout,
+.cart-main,
+.cart-panel,
+.cart-summary,
+.cart-summary-card,
+.cart-list,
+.cart-item,
+.checkout-card,
+.checkout-summary,
+.carrito-page,
+.carrito-layout,
+.carrito-panel {
+  background: #fff !important;
+}
+
+/* Si el fondo viene de un degradado viejo */
+.cart-page,
+.carrito-page {
+  background-image: none !important;
+}
+
+/* Título y zona general del carrito */
+.cart-page,
+.carrito-page {
+  min-height: calc(100vh - 100px);
+}
+
+/* Caja producto y resumen más limpios */
+.cart-panel,
+.cart-summary,
+.cart-summary-card {
+  border: 1px solid #dedede !important;
+  box-shadow: none !important;
+}
+
+/* Filas internas */
+.cart-item {
+  border-bottom: 1px solid #e5e5e5 !important;
+}
+
+/* Inputs/botones cantidad */
+.cart-qty,
+.qty-control,
+.cart-item-qty {
+  background: #fff !important;
+  border: 1px solid #dedede !important;
+}
+
+/* Por si el fondo beige está aplicado al body cuando entra carrito */
+body:has(.cart-page),
+body:has(.carrito-page) {
+  background: #fff !important;
+}
+
+/* =====================================================
+   ADELINE - PRODUCTOS RELACIONADOS ALEATORIOS
+===================================================== */
+
+.adeline-related-products {
+  width: min(1320px, calc(100% - 72px));
+  margin: 58px auto 80px;
+  background: #fff;
+}
+
+.adeline-related-products h3 {
+  margin: 0 0 22px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #111;
+}
+
+.adeline-related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 900px) {
+  .adeline-related-products {
+    width: calc(100% - 32px);
+    margin-top: 42px;
+  }
+
+  .adeline-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .adeline-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =====================================================
+   ADELINE - BOTÓN VOLVER A TIENDA EN DETALLE
+===================================================== */
+
+.detail-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.detail-back-shop {
+  color: #111 !important;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid #111;
+  padding-bottom: 4px;
+  white-space: nowrap;
+}
+
+.detail-back-shop:hover {
+  opacity: 0.65;
+}
+
+@media (max-width: 760px) {
+  .detail-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .detail-back-shop {
+    font-size: 12px;
+  }
+}
