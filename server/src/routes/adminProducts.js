@@ -31,6 +31,18 @@ function uploadToGridFS(file, filename, metadata = {}) {
   });
 }
 
+function normalizeCategorias(categorias, tipo) {
+  const base = Array.isArray(categorias) ? categorias : [];
+
+  const list = [...base];
+
+  if (tipo && !list.includes(tipo)) {
+    list.push(tipo);
+  }
+
+  return [...new Set(list.map((c) => String(c || "").trim()).filter(Boolean))];
+}
+
 function normalizeVariant(v, codigo) {
   const size = String(v.size || "").trim();
   const color = String(v.color || "").trim();
@@ -78,7 +90,9 @@ router.post("/", upload.array("images", 5), async (req, res) => {
       codigo: String(data.codigo || "").trim().toUpperCase(),
       nombre: String(data.nombre || "").trim(),
       tipo: data.tipo || "",
+      categorias: normalizeCategorias(data.categorias, data.tipo),
       descripcion: data.descripcion || "",
+      tablaTalles: data.tablaTalles || "",
       precioCompra: Number(data.precioCompra || 0),
       precioVenta: Number(data.precioVenta || 0),
       badge: data.badge || "",
@@ -146,7 +160,9 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
       codigo,
       nombre: String(data.nombre || "").trim(),
       tipo: data.tipo || "",
+      categorias: normalizeCategorias(data.categorias, data.tipo),
       descripcion: data.descripcion || "",
+      tablaTalles: data.tablaTalles || "",
       precioCompra: Number(data.precioCompra || 0),
       precioVenta: Number(data.precioVenta || 0),
       badge: data.badge || "",

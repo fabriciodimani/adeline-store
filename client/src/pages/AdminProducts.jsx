@@ -5,11 +5,25 @@ import { getProductMainImage } from "../utils/productImages.js";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
+const CATEGORIES = [
+  "NEW IN",
+  "BEST SELLERS",
+  "Tops",
+  "DENIM & PANTS",
+  "Camperas & Blazers",
+  "Sweaters & Buzos",
+  "EVERYDAY LOOKS",
+  "NIGHT OUT",
+  "Vestidos",
+];
+
 const empty = {
   codigo: "",
   nombre: "",
   tipo: "",
+  categorias: [],
   descripcion: "",
+  tablaTalles: "",
   precioCompra: 0,
   precioVenta: 0,
   badge: "",
@@ -115,6 +129,11 @@ export default function AdminProducts() {
     setForm({
       ...empty,
       ...p,
+     categorias: Array.isArray(p.categorias)
+       ? p.categorias
+       : p.tipo
+        ? [p.tipo]
+        : [],
       precioCompra: Number(p.precioCompra || 0),
       precioVenta: Number(p.precioVenta || 0),
       publicado: p.publicado !== false,
@@ -254,6 +273,41 @@ export default function AdminProducts() {
             </label>
           </div>
 
+          <div className="admin-categories-box">
+            <h3>Categorías</h3>
+            <p>Un producto puede estar en más de una categoría.</p>
+
+            <div className="admin-categories-grid">
+              {CATEGORIES.map((cat) => {
+                const checked = (form.categorias || []).includes(cat);
+
+                return (
+                  <label key={cat} className="admin-category-check">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        setForm((prev) => {
+                          const current = Array.isArray(prev.categorias)
+                            ? prev.categorias
+                            : [];
+
+                          const next = e.target.checked
+                            ? [...new Set([...current, cat])]
+                            : current.filter((c) => c !== cat);
+
+                          return { ...prev, categorias: next };
+                        });
+                      }}
+                    />
+
+                    <span>{cat}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
           <label>
             Nombre
             <input
@@ -269,6 +323,15 @@ export default function AdminProducts() {
               value={form.descripcion}
               onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
               placeholder="Descripción visible para el cliente"
+            />
+          </label>
+
+          <label>
+            Tabla de talles
+            <textarea
+              value={form.tablaTalles}
+              onChange={(e) => setForm({ ...form, tablaTalles: e.target.value })}
+              placeholder="Ej: TALLE 36: 36 cm de cintura, 45 cm de cadera..."
             />
           </label>
 

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const { sendOrderEmail } = require("../utils/mailer");
 
 function generateOrderCode() {
   const now = new Date();
@@ -191,6 +192,12 @@ router.post("/", async (req, res) => {
       subtotal: total,
       total,
       status: "PENDIENTE",
+    });
+
+    // Enviamos email a Adeline.
+    // Si falla el email, NO anulamos la compra.
+    sendOrderEmail(order).catch((mailErr) => {
+      console.error("[orders] mail error:", mailErr);
     });
 
     return res.status(201).json({

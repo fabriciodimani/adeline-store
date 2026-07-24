@@ -32,7 +32,7 @@ export default function Login() {
         <label>Contraseña<input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} /></label>
         {err && <div className="error-msg">{err}</div>}
         <button className="black-cta full">ENTRAR</button>
-        <small>Semilla: pia@adeline.com / Adeline123!</small>
+        {/* <small>Semilla: pia@adeline.com / Adeline123!</small> */}
       </form>
     </main>
   );

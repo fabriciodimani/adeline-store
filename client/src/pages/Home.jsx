@@ -15,11 +15,31 @@ const editorialImages = {
 };
 
 const collectionTiles = [
-  { title: "BEST SELLERS", image: editorialImages.best },
-  { title: "EVERYDAY LOOKS", image: editorialImages.street },
-  { title: "DENIM & PANTS", image: editorialImages.denim },
-  { title: "NIGHT\nOUT", image: editorialImages.winter },
+  {
+    title: "BEST SELLERS",
+    image: editorialImages.best,
+    category: "BEST SELLERS",
+  },
+  {
+    title: "EVERYDAY LOOKS",
+    image: editorialImages.street,
+    category: "EVERYDAY LOOKS",
+  },
+  {
+    title: "DENIM & PANTS",
+    image: editorialImages.denim,
+    category: "DENIM & PANTS",
+  },
+  {
+    title: "NIGHT\nOUT",
+    image: editorialImages.winter,
+    category: "NIGHT OUT",
+  },
 ];
+
+function categoryUrl(category) {
+  return `/tienda?categoria=${encodeURIComponent(category)}`;
+}
 
 function hasProductImage(product) {
   const hasImageIds =
@@ -37,19 +57,28 @@ function hasProductImage(product) {
   );
 }
 
+function sortByNewest(products) {
+  return [...products].sort((a, b) => {
+    const da = new Date(a?.createdAt || 0).getTime();
+    const db = new Date(b?.createdAt || 0).getTime();
+    return db - da;
+  });
+}
+
 function pickProducts(products, count = 6) {
   const source =
     Array.isArray(products) && products.length ? products : mockProducts;
 
-  const withImages = source.filter(hasProductImage);
+  const published = source.filter((p) => p.publicado !== false);
+  const withImages = published.filter(hasProductImage);
 
-  if (withImages.length) return withImages.slice(0, count);
+  const ordered = sortByNewest(withImages.length ? withImages : published);
 
-  return mockProducts.filter(hasProductImage).slice(0, count);
+  return ordered.slice(0, count);
 }
 
 export default function Home() {
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     apiGet("/api/products")
@@ -60,7 +89,7 @@ export default function Home() {
           setProducts(list);
         }
       })
-      .catch(() => setProducts(mockProducts));
+      .catch(() => setProducts([]));
   }, []);
 
   const newIn = useMemo(() => pickProducts(products, 6), [products]);
@@ -90,7 +119,7 @@ export default function Home() {
         <section className="adeline-collection-grid" id="coleccion">
           {collectionTiles.map((item) => (
             <Link
-              to="/tienda"
+              to={categoryUrl(item.category)}
               className="adeline-collection-tile"
               key={item.title}
             >

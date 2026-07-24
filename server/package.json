@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "commonjs",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "node --watch index.js",
     "start": "node index.js"
@@ -17,6 +19,7 @@
     "jsonwebtoken": "latest",
     "mongoose": "latest",
     "morgan": "latest",
-    "multer": "latest"
+    "multer": "latest",
+    "nodemailer": "^9.0.3"
   }
 }

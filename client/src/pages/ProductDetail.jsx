@@ -41,6 +41,46 @@ function getRandomRelatedProducts(products, currentProductId, count = 4) {
   return [...candidates].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
+function normalizeColorName(color) {
+  return String(color || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function getSwatchColor(color) {
+  const c = normalizeColorName(color);
+
+  if (c.includes("blanco")) return "#ffffff";
+  if (c.includes("negro")) return "#111111";
+
+  if (c.includes("beige")) return "#d8c7b3";
+  if (c.includes("crudo")) return "#eee4d5";
+  if (c.includes("natural")) return "#e8dcc8";
+  if (c.includes("camel")) return "#b8864f";
+  if (c.includes("vison")) return "#9b8f84";
+  if (c.includes("cemento")) return "#a7a7a0";
+
+  if (c.includes("gris")) return "#b9b9b9";
+  if (c.includes("azul")) return "#24476b";
+  if (c.includes("celeste")) return "#9fc7df";
+
+  if (c.includes("bordo")) return "#5b0f2e";
+  if (c.includes("malbec")) return "#4b1028";
+  if (c.includes("uva")) return "#5e2a73";
+
+  if (c.includes("rojo")) return "#b51f1f";
+  if (c.includes("rosa")) return "#e8b8c2";
+  if (c.includes("verde")) return "#496b4a";
+  if (c.includes("amarillo")) return "#f2d34f";
+
+  if (c.includes("marron")) return "#6b4a35";
+  if (c.includes("chocolate")) return "#4b2f24";
+
+  return "#dddddd";
+}
+
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -53,6 +93,7 @@ export default function ProductDetail() {
   const [color, setColor] = useState("");
   const [qty, setQty] = useState(1);
   const [msg, setMsg] = useState("");
+  const [activeTab, setActiveTab] = useState("descripcion");
 
   useEffect(() => {
     const fallback =
@@ -204,18 +245,31 @@ export default function ProductDetail() {
           <h1>{product.nombre}</h1>
 
           <h2>ARS {money(product.precioVenta)}</h2>
-
+{/* 
           <p className="installments">
             hasta 6 cuotas sin interés de ARS {money(product.precioVenta / 6)}
-          </p>
-
-          <p className="detail-desc">{product.descripcion}</p>
+          </p> */}
 
           <div className="divider" />
 
           <div className="selector-head">
             <b>TALLE</b>
-            <a href="#talles">GUÍA DE TALLES</a>
+
+            <button
+              type="button"
+              className="guide-link-btn"
+              onClick={() => {
+                setActiveTab("talles");
+
+                setTimeout(() => {
+                  document
+                    .querySelector(".detail-tabs")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 0);
+              }}
+            >
+              GUÍA DE TALLES
+            </button>
           </div>
 
           <div className="option-row">
@@ -252,7 +306,11 @@ export default function ProductDetail() {
                 onClick={() => setColor(c)}
                 type="button"
               >
-                <span className={`swatch swatch-${i}`} />
+                <span
+                  className="swatch"
+                  title={c}
+                  style={{ "--swatch-color": getSwatchColor(c) }}
+                />
               </button>
             ))}
           </div>
@@ -324,26 +382,65 @@ export default function ProductDetail() {
       </section>
 
       <section className="detail-tabs">
-        <div>
-          <b>DESCRIPCIÓN</b>
-        </div>
+        <button
+          type="button"
+          className={activeTab === "descripcion" ? "active" : ""}
+          onClick={() => setActiveTab("descripcion")}
+        >
+          DESCRIPCIÓN
+        </button>
 
-        <div>GUÍA DE TALLES</div>
+        <button
+          type="button"
+          className={activeTab === "talles" ? "active" : ""}
+          onClick={() => setActiveTab("talles")}
+        >
+          GUÍA DE TALLES
+        </button>
 
-        <div>ENVÍOS Y CAMBIOS</div>
+        <button
+          type="button"
+          className={activeTab === "envios" ? "active" : ""}
+          onClick={() => setActiveTab("envios")}
+        >
+          ENVÍOS Y CAMBIOS
+        </button>
       </section>
 
       <section className="description-block">
-        <p>
-          Prenda premium seleccionada para una experiencia cómoda, elegante y
-          duradera. Ideal para combinar con básicos o prendas de temporada.
-        </p>
+        {activeTab === "descripcion" && (
+          <p>
+            {product.descripcion ||
+              "P"}
+          </p>
+        )}
 
-        <ul>
-          <li>Calce moderno</li>
-          <li>Stock controlado por talle y color</li>
-          <li>Compra segura</li>
-        </ul>
+        {activeTab === "talles" && (
+          <p className="size-guide-text">
+            {product.tablaTalles ||
+              ""}
+          </p>
+        )}
+
+        {activeTab === "envios" && (
+          <div className="shipping-text">
+            <p>
+              Realizamos envíos a todo el país. El costo y el plazo de entrega se
+              coordinan al momento de confirmar la compra.
+            </p>
+
+            <p>
+              Los cambios pueden solicitarse dentro de los 10 días posteriores a la
+              recepción del pedido, siempre que la prenda se encuentre sin uso, en
+              perfecto estado y con sus etiquetas correspondientes.
+            </p>
+
+            <p>
+              Ante cualquier duda, podés contactarnos por WhatsApp antes de finalizar
+              tu compra.
+            </p>
+          </div>
+        )}
       </section>
 
       {relatedProducts.length > 0 && (
