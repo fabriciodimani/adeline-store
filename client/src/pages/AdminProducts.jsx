@@ -39,7 +39,7 @@ export default function AdminProducts() {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(empty);
   const [editId, setEditId] = useState(null);
-  const [files, setFiles] = useState([null, null]);
+  const [files, setFiles] = useState([null, null, null, null, null]);
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
@@ -73,7 +73,7 @@ export default function AdminProducts() {
   const resetForm = () => {
     setEditId(null);
     setForm(empty);
-    setFiles([null, null]);
+    setFiles([null, null, null, null, null]);
     setErr("");
     setMsg("");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -108,7 +108,7 @@ export default function AdminProducts() {
 
   const edit = (p) => {
     setEditId(p._id);
-    setFiles([null, null]);
+    setFiles([null, null, null, null, null]);
     setErr("");
     setMsg("");
 
@@ -356,29 +356,31 @@ export default function AdminProducts() {
 
           <div className="admin-images-box">
             <h3>Imágenes</h3>
-            <p>Podés cargar hasta 2 imágenes por prenda.</p>
+            <p>Podés cargar hasta 5 imágenes por prenda.</p>
 
-            <label>
-              Foto 1
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setFiles((prev) => [e.target.files?.[0] || null, prev[1]])
-                }
-              />
-            </label>
+            <div className="admin-product-images-grid">
+              {files.map((file, index) => (
+                <label className="admin-file-box" key={index}>
+                  <span>Foto {index + 1}</span>
 
-            <label>
-              Foto 2
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setFiles((prev) => [prev[0], e.target.files?.[0] || null])
-                }
-              />
-            </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const selected = e.target.files?.[0] || null;
+
+                      setFiles((prev) => {
+                        const next = [...prev];
+                        next[index] = selected;
+                        return next;
+                      });
+                    }}
+                  />
+
+                  {file && <small>{file.name}</small>}
+                </label>
+              ))}
+            </div>
 
             {editId && (
               <small>

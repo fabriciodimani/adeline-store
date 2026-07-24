@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", upload.array("images", 2), async (req, res) => {
+router.post("/", upload.array("images", 5), async (req, res) => {
   try {
     const data = JSON.parse(req.body.data || "{}");
 
@@ -129,7 +129,7 @@ router.post("/", upload.array("images", 2), async (req, res) => {
   }
 });
 
-router.put("/:id", upload.array("images", 2), async (req, res) => {
+router.put("/:id", upload.array("images", 5), async (req, res) => {
   try {
     const data = req.body.data ? JSON.parse(req.body.data) : req.body;
 

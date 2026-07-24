@@ -3968,3 +3968,46 @@ body:has(.carrito-page) {
     font-size: 12px;
   }
 }
+
+/* ADMIN PRODUCTOS - 5 FOTOS */
+.admin-product-images-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.admin-file-box {
+  min-height: 82px;
+  border: 1px dashed #cfcfcf;
+  background: #fff;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  cursor: pointer;
+}
+
+.admin-file-box span {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-file-box input {
+  width: 100%;
+  font-size: 11px;
+}
+
+.admin-file-box small {
+  font-size: 10px;
+  color: #555;
+  word-break: break-all;
+}
+
+@media (max-width: 900px) {
+  .admin-product-images-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
