@@ -8,11 +8,30 @@ import { getProductImages } from "../utils/productImages.js";
 
 const money = (n) => Number(n || 0).toLocaleString("es-AR");
 
+function normalizeOption(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function findVariant(product, size, color) {
   return (product?.variants || []).find(
-    (v) => v.size === size && v.color === color
+    (v) =>
+      normalizeOption(v.size) === normalizeOption(size) &&
+      normalizeOption(v.color) === normalizeOption(color)
   );
 }
+
+function cleanSizeLabel(value) {
+  const v = String(value || "").trim();
+
+  if (normalizeOption(v) === "unico") return "Único";
+
+  return v;
+}
+
 
 function hasProductImage(product) {
   const hasImageIds =
@@ -137,16 +156,20 @@ export default function ProductDetail() {
     [product]
   );
 
-  const colors = useMemo(
-    () => [
-      ...new Set(
-        (product?.variants || [])
-          .filter((v) => v.size === size)
-          .map((v) => v.color)
-      ),
-    ],
-    [product, size]
-  );
+  const colors = useMemo(() => {
+    const map = new Map();
+
+    (product?.variants || [])
+      .filter((v) => normalizeOption(v.size) === normalizeOption(size))
+      .forEach((v) => {
+        const key = normalizeOption(v.color);
+        if (key && !map.has(key)) {
+          map.set(key, String(v.color || "").trim());
+        }
+      });
+
+    return [...map.values()];
+  }, [product, size]);
 
   const relatedProducts = useMemo(() => {
     return getRandomRelatedProducts(relatedPool, product?._id, 4);
@@ -190,6 +213,16 @@ export default function ProductDetail() {
     return <main className="container loading-page">Cargando producto…</main>;
   }
 
+  const prevImage = () => {
+    if (!images.length) return;
+    setActiveImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const nextImage = () => {
+    if (!images.length) return;
+    setActiveImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <main className="container detail-page">
       <div className="detail-top-row">
@@ -224,11 +257,30 @@ export default function ProductDetail() {
         </aside>
 
         <section className="main-photo">
-          {product.badge && (
-            <span className="product-badge">{product.badge}</span>
-          )}
-
+          {product.badge && <span className="product-badge">{product.badge}</span>}
           <span className="heart big">♡</span>
+
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                className="photo-arrow left"
+                onClick={prevImage}
+                aria-label="Foto anterior"
+              >
+                ‹
+              </button>
+
+              <button
+                type="button"
+                className="photo-arrow right"
+                onClick={nextImage}
+                aria-label="Foto siguiente"
+              >
+                ›
+              </button>
+            </>
+          )}
 
           <img
             src={images[activeImg] || images[0]}
@@ -239,16 +291,13 @@ export default function ProductDetail() {
           />
         </section>
 
+
         <section className="detail-info">
           <p className="type-label">{product.tipo}</p>
 
           <h1>{product.nombre}</h1>
 
           <h2>ARS {money(product.precioVenta)}</h2>
-{/* 
-          <p className="installments">
-            hasta 6 cuotas sin interés de ARS {money(product.precioVenta / 6)}
-          </p> */}
 
           <div className="divider" />
 
@@ -277,16 +326,17 @@ export default function ProductDetail() {
               <button
                 key={s}
                 className={s === size ? "selected" : ""}
-                onClick={() => {
-                  setSize(s);
+                  onClick={() => {
+                    setSize(s);
 
-                  const c =
-                    (product.variants || []).find((v) => v.size === s)
-                      ?.color || "";
+                    const c =
+                      (product.variants || []).find(
+                        (v) => normalizeOption(v.size) === normalizeOption(s)
+                      )?.color || "";
 
-                  setColor(c);
-                  setQty(1);
-                }}
+                    setColor(c);
+                    setQty(1);
+                  }}
                 type="button"
               >
                 {s}

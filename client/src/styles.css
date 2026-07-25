@@ -4398,3 +4398,84 @@ body:has(.carrito-page) {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
+.main-photo {
+  position: relative;
+}
+
+.photo-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border: 1px solid #d8d2ca;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.photo-arrow:hover {
+  background: #111;
+  color: #fff;
+}
+
+.photo-arrow.left {
+  left: 12px;
+}
+
+.photo-arrow.right {
+  right: 12px;
+}
+
+/* FLECHAS CARRUSEL DETALLE - TRANSPARENTES SIN CUADRO */
+.main-photo .photo-arrow,
+.main-photo button.photo-arrow {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  color: rgba(0, 0, 0, 0.55) !important;
+  font-size: 48px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  z-index: 5 !important;
+}
+
+.main-photo .photo-arrow:hover,
+.main-photo button.photo-arrow:hover {
+  background: transparent !important;
+  color: rgba(0, 0, 0, 0.9) !important;
+  transform: translateY(-50%) scale(1.06) !important;
+}
+
+.main-photo .photo-arrow.left {
+  left: 18px !important;
+}
+
+.main-photo .photo-arrow.right {
+  right: 18px !important;
+}
