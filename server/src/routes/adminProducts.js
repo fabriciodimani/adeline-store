@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const multer = require("multer");
+const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const { getBucket } = require("../utils/gridfs");
 
@@ -223,6 +224,46 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
     res.status(400).json({
       ok: false,
       error: err.message || "No se pudo actualizar el producto",
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        ok: false,
+        error: "Producto no encontrado",
+      });
+    }
+
+    // Borra imágenes de GridFS si existen
+    if (Array.isArray(product.imageIds) && product.imageIds.length) {
+      const bucket = getBucket();
+
+      for (const imageId of product.imageIds) {
+        try {
+          await bucket.delete(new mongoose.Types.ObjectId(imageId));
+        } catch (imgErr) {
+          console.warn("[adminProducts] no se pudo borrar imagen:", imageId);
+        }
+      }
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
+
+    res.json({
+      ok: true,
+      message: "Producto eliminado correctamente",
+    });
+  } catch (err) {
+    console.error("[adminProducts] delete error:", err);
+
+    res.status(400).json({
+      ok: false,
+      error: err.message || "No se pudo eliminar el producto",
     });
   }
 });

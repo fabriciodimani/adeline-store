@@ -206,6 +206,44 @@ export default function AdminProducts() {
     }
   };
 
+  const deleteProduct = async (p) => {
+    const ok = window.confirm(
+      `¿Seguro que querés eliminar "${p.nombre}"?\n\nEsta acción no se puede deshacer.`
+    );
+
+    if (!ok) return;
+
+    try {
+      setLoading(true);
+      setErr("");
+      setMsg("");
+
+      const res = await fetch(`${API}/api/admin/products/${p._id}`, {
+        method: "DELETE",
+        headers: tokenHeaders(),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo eliminar el producto");
+      }
+
+      setMsg("Producto eliminado correctamente");
+
+      if (editId === p._id) {
+        resetForm();
+      }
+
+      await load();
+    } catch (e) {
+      console.error(e);
+      setErr(e.message || "No se pudo eliminar el producto");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="admin-products-page">
       <section className="container admin-products-header">
@@ -502,9 +540,19 @@ export default function AdminProducts() {
                 </span>
               </div>
 
-              <button type="button" onClick={() => edit(p)}>
-                Editar
-              </button>
+              <div className="admin-product-actions-row">
+                <button type="button" onClick={() => edit(p)}>
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => deleteProduct(p)}
+                >
+                  Eliminar
+                </button>
+              </div>
             </article>
           ))}
         </section>

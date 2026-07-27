@@ -2,14 +2,14 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import Header from "./components/Header.jsx";
 import Home from "./pages/Home.jsx";
+import Shop from "./pages/Shop.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import Cart from "./pages/Cart.jsx";
-import Login from "./pages/Login.jsx";
-import AdminProducts from "./pages/AdminProducts.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import OrderConfirmed from "./pages/OrderConfirmed.jsx";
+import Login from "./pages/Login.jsx";
+import AdminProducts from "./pages/AdminProducts.jsx";
 import AdminOrders from "./pages/AdminOrders.jsx";
-import Shop from "./pages/Shop.jsx";
 
 function parseUser() {
   try {
@@ -19,9 +19,25 @@ function parseUser() {
   }
 }
 
+function isAdminUser(user) {
+  const role = String(user?.role || user?.rol || "").toLowerCase();
+
+  return (
+    role === "admin" ||
+    role === "admin_role" ||
+    role === "administrator"
+  );
+}
+
 function AdminOnly({ children }) {
   const user = parseUser();
-  return user?.role === "admin" ? children : <Navigate to="/login" replace />;
+  const token = localStorage.getItem("adeline_token");
+
+  if (!token || !isAdminUser(user)) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 }
 
 export default function App() {
@@ -30,21 +46,20 @@ export default function App() {
       <Header />
 
       <Routes>
+        {/* Público */}
         <Route path="/" element={<Home />} />
-
-        {/* Producto público */}
-        <Route path="/producto/:id" element={<ProductDetail />} />
         <Route path="/tienda" element={<Shop />} />
+        <Route path="/producto/:id" element={<ProductDetail />} />
 
         {/* Compra */}
         <Route path="/carrito" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/pedido-confirmado" element={<OrderConfirmed />} />
-        
-        {/* Login */}
+
+        {/* Login admin */}
         <Route path="/login" element={<Login />} />
 
-        {/* Admin */}
+        {/* Admin protegido */}
         <Route
           path="/admin/productos"
           element={
@@ -63,9 +78,12 @@ export default function App() {
           }
         />
 
-        <Route path="/admin" element={<Navigate to="/admin/productos" replace />} />
+        <Route
+          path="/admin"
+          element={<Navigate to="/admin/productos" replace />}
+        />
 
-        {/* Cualquier ruta rara vuelve al inicio */}
+        {/* Ruta inexistente */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

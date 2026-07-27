@@ -167,13 +167,13 @@ export default function Header() {
           )}
 
           {user ? (
-            <button className="ad-user-icon" type="button" onClick={logout} title="Salir">
+            <Link className="ad-user-icon" to="/admin/productos" title="Admin">
               <UserSvgIcon />
-            </button>
+            </Link>
           ) : (
-          <Link className="ad-user-icon" to="/login" title="Acceso admin">
-            <UserSvgIcon />
-          </Link>
+            <Link className="ad-user-icon" to="/login" title="Acceso admin">
+              <UserSvgIcon />
+            </Link>
           )}
 
           <Link className="ad-cart-icon" to="/carrito" title="Carrito">
