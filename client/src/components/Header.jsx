@@ -57,6 +57,21 @@ function CartSvgIcon() {
   );
 }
 
+function HomeSvgIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="ad-icon-svg">
+      <path
+        d="M4 10.8 12 4l8 6.8V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.2Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function Header() {
   const [count, setCount] = useState(cartCount());
   const [user, setUser] = useState(parseUser());
@@ -134,6 +149,10 @@ export default function Header() {
           >
             ☰
           </button>
+
+          <Link className="ad-home-icon" to="/" title="Inicio" aria-label="Inicio">
+            <HomeSvgIcon />
+          </Link>
 
           <button
             className="ad-search-icon"

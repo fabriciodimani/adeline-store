@@ -4612,3 +4612,25 @@ body:has(.carrito-page) {
   width: 92px !important;
   height: 36px !important;
 }
+
+/* HEADER - ICONO HOME */
+.ad-home-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  text-decoration: none;
+  border: 0;
+  background: transparent;
+}
+
+.ad-home-icon:hover {
+  opacity: 0.65;
+}
+
+.ad-home-icon .ad-icon-svg {
+  width: 19px;
+  height: 19px;
+}
