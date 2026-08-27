@@ -4,10 +4,34 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const { getBucket } = require("../utils/gridfs");
 
+const sharp = require("sharp");
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024 },
+  limits: { fileSize: 15 * 1024 * 1024 },
 });
+
+async function optimizeImage(file) {
+  const buffer = await sharp(file.buffer)
+    .rotate()
+    .resize({
+      width: 1400,
+      height: 1800,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({
+      quality: 78,
+      effort: 4,
+    })
+    .toBuffer();
+
+  return {
+    buffer,
+    mimetype: "image/webp",
+    originalname: file.originalname.replace(/\.[^.]+$/, ".webp"),
+  };
+}
 
 function uploadToGridFS(file, filename, metadata = {}) {
   return new Promise((resolve, reject) => {
@@ -108,12 +132,15 @@ router.post("/", upload.array("images", 5), async (req, res) => {
       created.imageIds = [];
 
       for (const file of req.files) {
+        const optimized = await optimizeImage(file);
+
         const id = await uploadToGridFS(
-          file,
-          `${created.codigo}-${Date.now()}-${file.originalname}`,
+          optimized,
+          `${created.codigo}-${Date.now()}-${optimized.originalname}`,
           {
             productId: String(created._id),
             codigo: created.codigo,
+            optimized: true,
           }
         );
 
@@ -192,12 +219,15 @@ router.put("/:id", upload.array("images", 5), async (req, res) => {
       product.imageIds = [];
 
       for (const file of req.files) {
+        const optimized = await optimizeImage(file);
+
         const id = await uploadToGridFS(
-          file,
-          `${product.codigo}-${Date.now()}-${file.originalname}`,
+          optimized,
+          `${product.codigo}-${Date.now()}-${optimized.originalname}`,
           {
             productId: String(product._id),
             codigo: product.codigo,
+            optimized: true,
           }
         );
 

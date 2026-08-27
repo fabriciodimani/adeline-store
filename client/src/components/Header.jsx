@@ -231,6 +231,16 @@ export default function Header() {
               </button>
             </form>
 
+            {user && (
+              <button
+                type="button"
+                className="ad-menu-logout-mobile"
+                onClick={logout}
+              >
+                CERRAR SESIÓN
+              </button>
+            )}
+
             <nav className="ad-menu-nav">
               <Link to={categoryUrl("NEW IN")} onClick={closeMenu}>
                 NEW IN

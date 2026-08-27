@@ -121,7 +121,14 @@ async function sendOrderEmail(order) {
     console.log(`[mailer] email enviado pedido ${order.code}`);
     return true;
   } catch (err) {
-    console.error("[mailer] error enviando email:", err.message);
+    console.error("[mailer] error enviando email:", {
+      message: err.message,
+      code: err.code,
+      command: err.command,
+      response: err.response,
+      responseCode: err.responseCode,
+    });
+
     return false;
   }
 }

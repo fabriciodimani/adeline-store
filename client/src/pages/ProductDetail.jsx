@@ -365,16 +365,12 @@ export default function ProductDetail() {
             ))}
           </div>
 
-          <p
-            className={
-              stock > 2 ? "stock ok" : stock > 0 ? "stock low" : "stock none"
-            }
-          >
-            <span />
-            {stock > 0
-              ? `${stock} disponible${stock === 1 ? "" : "s"}`
-              : "Sin stock"}
-          </p>
+          {stock <= 0 && (
+            <p className="stock none">
+              <span />
+              Sin stock
+            </p>
+          )}
 
           <div className="purchase-row">
             <div className="qty-control">

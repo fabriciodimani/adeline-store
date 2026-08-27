@@ -29,6 +29,8 @@ router.get("/image/:id", async (req, res) => {
     }
 
     res.set("Content-Type", files[0].contentType || "image/jpeg");
+    res.set("Cache-Control", "public, max-age=31536000, immutable");
+    res.set("ETag", String(files[0]._id));
     bucket.openDownloadStream(_id).pipe(res);
   } catch (err) {
     console.error("[products] image error:", err);
