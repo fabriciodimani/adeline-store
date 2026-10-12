@@ -4,6 +4,8 @@ import { apiGet } from "../api.js";
 import ProductCard from "../components/ProductCard.jsx";
 import AdelineFooter from "../components/AdelineFooter.jsx";
 
+const PAGE_SIZE = 28;
+
 function normalizeText(value) {
   return String(value || "")
     .trim()
@@ -56,6 +58,24 @@ function productMatchesSearch(product, q) {
   return normalizeText(text).includes(normalizeText(q));
 }
 
+function getPageNumbers(totalPages, currentPage) {
+  const pages = [];
+
+  for (let i = 1; i <= totalPages; i++) {
+    const isFirst = i === 1;
+    const isLast = i === totalPages;
+    const isNearCurrent = Math.abs(i - currentPage) <= 2;
+
+    if (isFirst || isLast || isNearCurrent) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "...") {
+      pages.push("...");
+    }
+  }
+
+  return pages;
+}
+
 export default function Shop() {
   const [searchParams] = useSearchParams();
 
@@ -65,6 +85,7 @@ export default function Shop() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState(queryFromUrl);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     setSearch(queryFromUrl);
@@ -86,6 +107,10 @@ export default function Shop() {
       });
   }, []);
 
+  useEffect(() => {
+    setPage(1);
+  }, [categoria, search]);
+
   const visibleProducts = useMemo(() => {
     const ordered = sortProducts(products);
 
@@ -96,6 +121,25 @@ export default function Shop() {
       );
     });
   }, [products, categoria, search]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
+
+  const paginatedProducts = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return visibleProducts.slice(start, start + PAGE_SIZE);
+  }, [visibleProducts, page]);
+
+  const goToPage = (nextPage) => {
+    if (nextPage < 1 || nextPage > totalPages) return;
+
+    setPage(nextPage);
+
+    setTimeout(() => {
+      document
+        .querySelector(".adeline-shop-header")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
 
   const title = categoria || "Todos los productos";
 
@@ -135,6 +179,12 @@ export default function Shop() {
           />
         </section>
 
+        {!loading && visibleProducts.length > 0 && (
+          <section className="adeline-shop-count-mobile">
+            Página {page} de {totalPages}
+          </section>
+        )}
+
         {loading ? (
           <section className="adeline-shop-loading">
             Cargando colección...
@@ -142,7 +192,7 @@ export default function Shop() {
         ) : (
           <>
             <section className="adeline-shop-grid">
-              {visibleProducts.map((product) => (
+              {paginatedProducts.map((product) => (
                 <ProductCard
                   key={product._id || product.codigo}
                   product={product}
@@ -150,6 +200,43 @@ export default function Shop() {
                 />
               ))}
             </section>
+
+            {visibleProducts.length > PAGE_SIZE && (
+              <section className="adeline-pagination">
+                <button
+                  type="button"
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page === 1}
+                >
+                  Anterior
+                </button>
+
+                <div>
+                  {getPageNumbers(totalPages, page).map((p, index) =>
+                    p === "..." ? (
+                      <span key={`dots-${index}`}>...</span>
+                    ) : (
+                      <button
+                        key={p}
+                        type="button"
+                        className={p === page ? "active" : ""}
+                        onClick={() => goToPage(p)}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => goToPage(page + 1)}
+                  disabled={page === totalPages}
+                >
+                  Siguiente
+                </button>
+              </section>
+            )}
 
             {visibleProducts.length === 0 && (
               <section className="adeline-empty-shop">
