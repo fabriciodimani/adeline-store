@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getCartOffer } from "../utils/offer.js";
 
 const money = (n) =>
   Number(n || 0).toLocaleString("es-AR", {
@@ -123,6 +124,7 @@ export default function Cart() {
               const qty = Number(item.qty || 1);
               const stock = Number(item.stock || 9999);
               const reachedStock = qty >= stock;
+              const offer = getCartOffer(item);
 
               return (
                 <article className="cart-item" key={getItemKey(item, idx)}>
@@ -190,7 +192,11 @@ export default function Cart() {
                       </button>
                     </div>
 
-                    <strong>ARS {money(price * qty)}</strong>
+                    <div className="ad-cart-item-price">
+                      {offer.active && <s>ARS {money(offer.previous * qty)}</s>}
+                      <strong>ARS {money(price * qty)}</strong>
+                      {offer.transfer > 0 && <small>ARS {money(offer.transfer * qty)} con transferencia</small>}
+                    </div>
                   </div>
                 </article>
               );

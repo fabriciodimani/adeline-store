@@ -26,12 +26,28 @@ const empty = {
   tablaTalles: "",
   precioCompra: 0,
   precioVenta: 0,
+  enOferta: false,
+  precioAnterior: 0,
+  precioTransferencia: 0,
+  textoOferta: "",
+  textoExtraOferta: "",
   badge: "",
   publicado: true,
   variants: [{ size: "S", color: "Negro", sku: "", stock: 1 }],
 };
 
 const money = (n) => Number(n || 0).toLocaleString("es-AR");
+
+function calcularOferta(precioOriginal, porcentaje) {
+  const precio = Number(precioOriginal);
+  const descuento = Number(porcentaje);
+
+  if (precio <= 0 || descuento <= 0 || descuento >= 100) {
+    return precio || 0;
+  }
+
+  return Number((precio * (1 - descuento / 100)).toFixed(2));
+}
 
 function tokenHeaders(extra = {}) {
   const token = localStorage.getItem("adeline_token");
@@ -57,6 +73,10 @@ export default function AdminProducts() {
   const [err, setErr] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [descuento, setDescuento] = useState("");
+  const [busquedaAdmin, setBusquedaAdmin] = useState("");
+  const [paginaAdmin, setPaginaAdmin] = useState(1);
 
   const title = editId ? "Editar producto" : "Nuevo producto";
 
@@ -90,6 +110,7 @@ export default function AdminProducts() {
     setFiles([null, null, null, null, null]);
     setErr("");
     setMsg("");
+    setDescuento("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -136,9 +157,22 @@ export default function AdminProducts() {
         : [],
       precioCompra: Number(p.precioCompra || 0),
       precioVenta: Number(p.precioVenta || 0),
+      enOferta: p.enOferta === true,
+      precioAnterior: Number(p.precioAnterior || 0),
+      precioTransferencia: Number(p.precioTransferencia || 0),
       publicado: p.publicado !== false,
       variants: p.variants?.length ? p.variants : empty.variants,
     });
+
+    setDescuento(
+      p.enOferta && Number(p.precioAnterior) > Number(p.precioVenta)
+        ? String(
+            Math.round(
+              (1 - Number(p.precioVenta) / Number(p.precioAnterior)) * 10000
+            ) / 100
+          )
+        : ""
+    );
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -149,6 +183,17 @@ export default function AdminProducts() {
     setMsg("");
 
     try {
+
+      if (
+        form.enOferta &&
+        (!Number(descuento) ||
+          Number(descuento) <= 0 ||
+          Number(descuento) >= 100)
+      ) {
+        setErr("Ingresá un descuento mayor a 0% y menor a 100%.");
+        return;
+      }
+
       setLoading(true);
 
       const payload = {
@@ -157,6 +202,11 @@ export default function AdminProducts() {
         nombre: String(form.nombre || "").trim(),
         precioCompra: Number(form.precioCompra || 0),
         precioVenta: Number(form.precioVenta || 0),
+        enOferta: form.enOferta === true,
+        precioAnterior: Number(form.precioAnterior || 0),
+        precioTransferencia: Number(form.precioTransferencia || 0),
+        textoOferta: String(form.textoOferta || "").trim(),
+        textoExtraOferta: String(form.textoExtraOferta || "").trim(),
         publicado: form.publicado !== false,
         variants: form.variants.map((v) => ({
           size: String(v.size || "").trim(),
@@ -195,9 +245,9 @@ export default function AdminProducts() {
         throw new Error(data?.error || "No se pudo guardar el producto");
       }
 
-      setMsg(editId ? "Producto actualizado correctamente" : "Producto creado correctamente");
       resetForm();
       await load();
+      setMsg(editId ? "Producto actualizado correctamente" : "Producto creado correctamente");
     } catch (e) {
       console.error(e);
       setErr(e.message || "No se pudo guardar");
@@ -243,6 +293,23 @@ export default function AdminProducts() {
       setLoading(false);
     }
   };
+
+  const productosFiltrados = items.filter((p) => {
+    const texto = `${p.codigo} ${p.nombre} ${p.tipo}`.toLowerCase();
+    return texto.includes(busquedaAdmin.toLowerCase().trim());
+  });
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(productosFiltrados.length / 10)
+  );
+
+  const paginaActual = Math.min(paginaAdmin, totalPaginas);
+
+  const productosPagina = productosFiltrados.slice(
+    (paginaActual - 1) * 10,
+    paginaActual * 10
+  );
 
   return (
     <main className="admin-products-page">
@@ -386,15 +453,135 @@ export default function AdminProducts() {
             </label>
 
             <label>
-              Precio venta
+              {form.enOferta ? "Precio con descuento (calculado)" : "Precio venta"}
               <input
                 type="number"
                 value={form.precioVenta}
+                readOnly={form.enOferta}
                 onChange={(e) =>
                   setForm({ ...form, precioVenta: e.target.value })
                 }
+                style={{
+                  background: form.enOferta ? "#f0f9f0" : "#fff",
+                  fontWeight: form.enOferta ? 900 : 400,
+                }}
               />
             </label>
+          </div>
+
+          <div className="ad-offer-admin-box">
+            <label className="ad-offer-admin-toggle">
+              <input
+                type="checkbox"
+                checked={form.enOferta === true}
+                onChange={(e) => {
+                  const activo = e.target.checked;
+                  setDescuento("");
+
+                  setForm((prev) => ({
+                    ...prev,
+                    enOferta: activo,
+                    precioAnterior: activo ? Number(prev.precioVenta) : 0,
+                    precioVenta: activo
+                      ? Number(prev.precioVenta)
+                      : Number(prev.precioAnterior) || Number(prev.precioVenta),
+                    precioTransferencia: 0,
+                  }));
+                }}
+              />
+              <span>ACTIVAR LIQUIDACIÓN DE TEMPORADA</span>
+            </label>
+
+            {form.enOferta && (
+              <>
+                <div className="admin-form-grid">
+                  <label>
+                    Precio original
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={form.precioAnterior}
+                      onChange={(e) => {
+                        const original = e.target.value;
+
+                        setForm((prev) => ({
+                          ...prev,
+                          precioAnterior: original,
+                          precioVenta: calcularOferta(original, descuento),
+                        }));
+                      }}
+                    />
+                  </label>
+
+                  <label>
+                    Descuento (%)
+                    <input
+                      type="number"
+                      min="0"
+                      max="99.99"
+                      step="0.01"
+                      value={descuento}
+                      placeholder="Ej: 20"
+                      onChange={(e) => {
+                        const porcentaje = e.target.value;
+                        setDescuento(porcentaje);
+
+                        setForm((prev) => ({
+                          ...prev,
+                          precioVenta: calcularOferta(
+                            prev.precioAnterior,
+                            porcentaje
+                          ),
+                        }));
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <div className="ad-offer-admin-preview">
+                  {Number(descuento) > 0 &&
+                  Number(descuento) < 100 &&
+                  Number(form.precioAnterior) > 0 ? (
+                    <>
+                      <b>{descuento}% OFF</b>
+                      <s>ARS {money(form.precioAnterior)}</s>
+                      <strong>ARS {money(form.precioVenta)}</strong>
+                    </>
+                  ) : (
+                    <span>Ingresá un porcentaje de descuento.</span>
+                  )}
+                </div>
+
+                <label>
+                  Texto de etiqueta (opcional)
+                  <input
+                    value={form.textoOferta || ""}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        textoOferta: e.target.value,
+                      }))
+                    }
+                    placeholder="Dejá vacío para mostrar el % OFF"
+                  />
+                </label>
+
+                <label>
+                  Leyenda adicional (opcional)
+                  <input
+                    value={form.textoExtraOferta || ""}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        textoExtraOferta: e.target.value,
+                      }))
+                    }
+                    placeholder="ÚLTIMOS DÍAS DE TEMPORADA"
+                  />
+                </label>
+              </>
+            )}
           </div>
 
           <div className="admin-form-grid">
@@ -501,7 +688,18 @@ export default function AdminProducts() {
             <span>{items.length} productos</span>
           </div>
 
-          {items.map((p) => (
+          <input
+            className="ad-admin-busqueda"
+            type="search"
+            placeholder="Buscar producto por nombre, código o categoría..."
+            value={busquedaAdmin}
+            onChange={(e) => {
+              setBusquedaAdmin(e.target.value);
+              setPaginaAdmin(1);
+            }}
+          />
+
+          {productosPagina.map((p) => (
             <article className="admin-product-row" key={p._id}>
               <img
                 src={productImage(p)}
@@ -520,6 +718,9 @@ export default function AdminProducts() {
               <div>
                 <small>Precio</small>
                 <b>ARS {money(p.precioVenta)}</b>
+                {p.enOferta && Number(p.precioAnterior) > Number(p.precioVenta) && (
+                  <small className="ad-admin-offer-indicator">EN OFERTA · antes ARS {money(p.precioAnterior)}</small>
+                )}
               </div>
 
               <div>
@@ -555,6 +756,28 @@ export default function AdminProducts() {
               </div>
             </article>
           ))}
+
+          <div className="ad-admin-paginacion">
+            <button
+              type="button"
+              disabled={paginaActual === 1}
+              onClick={() => setPaginaAdmin(paginaActual - 1)}
+            >
+              ← Anterior
+            </button>
+
+            <span>
+              Página {paginaActual} de {totalPaginas}
+            </span>
+
+            <button
+              type="button"
+              disabled={paginaActual === totalPaginas}
+              onClick={() => setPaginaAdmin(paginaActual + 1)}
+            >
+              Siguiente →
+            </button>
+          </div>
         </section>
       </section>
     </main>

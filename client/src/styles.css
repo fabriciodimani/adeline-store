@@ -4814,3 +4814,147 @@ body:has(.carrito-page) {
     height: 36px;
   }
 }
+
+/* ADELINE - Liquidación / Cierre de temporada */
+.ad-offer-card-badge,
+.ad-offer-detail-badge {
+  position: absolute;
+  z-index: 6;
+  background: #f5d6e7;
+  color: #24121e;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  padding: 8px 10px;
+  max-width: 65%;
+  text-align: center;
+}
+.ad-offer-card-badge { right: 10px; top: 10px; }
+.ad-offer-detail-badge { top: 14px; left: 14px; }
+.ad-offer-old-price { display: block; color: #999; font-size: 13px; text-decoration: line-through; margin: 6px 0 2px; }
+.ad-offer-new-price { font-weight: 900 !important; color: #111 !important; }
+.ad-offer-note { color: #ad405c; font-weight: 700; font-size: 12px; line-height: 1.4; margin: 5px 0 0; overflow-wrap: anywhere; }
+.ad-offer-transfer { color: #111; font-size: 12px; line-height: 1.4; font-weight: 800; margin: 5px 0 0; }
+.ad-detail-old-price { font-size: 19px; margin: 6px 0 4px; }
+.ad-offer-detail-transfer { font-size: 15px; font-weight: 800; margin: 8px 0 12px; }
+.ad-offer-admin-box { border: 1px solid #e4cad8; background: #fff8fb; padding: 18px; margin: 22px 0; }
+.ad-offer-admin-box p { margin: 8px 0 16px; color: #555; font-size: 13px; line-height: 1.5; }
+.ad-offer-admin-box small { display: block; color: #777; font-size: 12px; margin-top: 12px; }
+.ad-offer-admin-toggle { display: flex !important; align-items: center; gap: 10px; font-weight: 900; font-size: 14px !important; margin: 0 !important; }
+.ad-offer-admin-toggle input { width: 19px !important; height: 19px !important; margin: 0 !important; flex: 0 0 19px; }
+.ad-offer-admin-box .admin-form-grid { margin-top: 12px; }
+.ad-offer-admin-preview { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 14px; font-size: 13px; }
+.ad-offer-admin-preview b { background: #f5d6e7; padding: 5px 8px; }
+.ad-offer-admin-preview s { color: #999; }
+.ad-offer-admin-preview strong { color: #111; }
+.ad-admin-offer-indicator { color: #ad405c; display: block; margin-top: 3px; font-weight: 800; }
+.ad-cart-item-price { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; text-align: right; }
+.ad-cart-item-price s { color: #888; font-size: 12px; }
+.ad-cart-item-price small { font-size: 12px; font-weight: 700; line-height: 1.35; }
+.ad-checkout-discount { color: #a12e54; font-weight: 700; }
+@media (max-width: 768px) {
+  .ad-offer-card-badge { font-size: 10px; padding: 5px 7px; max-width: 72%; }
+  .ad-offer-detail-badge { font-size: 10px; }
+  .ad-offer-old-price { font-size: 12px; }
+  .ad-offer-new-price { font-size: inherit; }
+  .ad-offer-admin-box { padding: 12px; }
+  .ad-offer-admin-box .admin-form-grid { grid-template-columns: 1fr !important; }
+  .ad-cart-item-price { align-items: flex-start; text-align: left; }
+}
+
+.ad-offer-admin-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+}
+
+.ad-offer-admin-toggle input {
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 !important;
+  flex: 0 0 18px;
+}
+
+.ad-offer-admin-box {
+  display: grid;
+  gap: 14px;
+}
+
+.ad-admin-busqueda {
+  width: calc(100% - 28px);
+  margin: 14px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  background: white;
+  font-size: 13px;
+}
+
+.ad-admin-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  padding: 24px 10px;
+}
+
+.ad-admin-paginacion button {
+  min-height: 38px;
+  padding: 8px 15px;
+  background: white;
+  color: #111;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.ad-admin-paginacion button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .ad-admin-paginacion {
+    gap: 8px;
+  }
+
+  .ad-admin-paginacion button {
+    padding: 8px 10px;
+  }
+}
+/* Ofertas: etiqueta y precio claramente visibles en tienda y detalle */
+.ad-product-img-wrap .ad-offer-card-badge,
+.main-photo .ad-offer-detail-badge {
+  position: absolute !important;
+  z-index: 12 !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
+  display: inline-flex !important;
+  background: #f5d6e7 !important;
+  color: #251621 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: .02em !important;
+  padding: 7px 10px !important;
+  line-height: 1.2 !important;
+}
+.ad-product-info .ad-offer-old-price,
+.detail-info .ad-offer-old-price {
+  display: block !important;
+  text-decoration: line-through !important;
+  color: #888 !important;
+  margin: 6px 0 3px !important;
+}
+.ad-product-info .ad-offer-new-price,
+.detail-info .ad-offer-new-price {
+  font-weight: 900 !important;
+  color: #111 !important;
+}
+@media (max-width: 768px) {
+  .ad-product-img-wrap .ad-offer-card-badge,
+  .main-photo .ad-offer-detail-badge {
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+  }
+}

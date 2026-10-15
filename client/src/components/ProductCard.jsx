@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getProductImages } from "../utils/productImages.js";
+import { getOffer } from "../utils/offer.js";
 
 const money = (n) => Number(n || 0).toLocaleString("es-AR");
 
@@ -15,6 +16,7 @@ export default function ProductCard({ product }) {
   const images = getProductImages(product);
   const mainImg = images[0];
   const hoverImg = images[1];
+  const offer = getOffer(product);
 
   return (
     <article className="ad-product-card">
@@ -24,6 +26,7 @@ export default function ProductCard({ product }) {
         onMouseEnter={() => setHoverReady(true)}
       >
         {stock <= 0 && <span className="ad-product-tag dark">SIN STOCK</span>}
+        {offer.active && <span className="ad-offer-card-badge">{offer.percent}% OFF</span>}
 
         <img
           className="ad-product-img main"
@@ -53,7 +56,13 @@ export default function ProductCard({ product }) {
 
       <div className="ad-product-info">
         <p className="ad-product-name">{product.nombre}</p>
-        <p className="ad-product-price">${money(product.precioVenta)}</p>
+        {offer.active && <s className="ad-offer-old-price">ARS {money(offer.previous)}</s>}
+        <p className={offer.active ? "ad-product-price ad-offer-new-price" : "ad-product-price"}>
+          ${money(product.precioVenta)}
+        </p>
+        {offer.active && offer.label !== `${offer.percent}% OFF` && <p className="ad-offer-note">{offer.label}</p>}
+        {offer.active && offer.note && <p className="ad-offer-note">{offer.note}</p>}
+        {offer.transfer > 0 && <p className="ad-offer-transfer">${money(offer.transfer)} con transferencia</p>}
       </div>
     </article>
   );

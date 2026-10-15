@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getPriceForPayment } from "../utils/offer.js";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -50,6 +51,12 @@ export default function Checkout() {
     }, 0);
   }, [items]);
 
+  const finalTotal = useMemo(() => items.reduce(
+    (sum, item) => sum + getPriceForPayment(item, paymentMethod) * Number(item.qty || 1),
+    0
+  ), [items, paymentMethod]);
+  const transferDiscount = Math.max(0, subtotal - finalTotal);
+
   const totalItems = useMemo(() => {
     return items.reduce((acc, item) => acc + Number(item.qty || 1), 0);
   }, [items]);
@@ -89,7 +96,7 @@ export default function Checkout() {
           size: item.size,
           color: item.color,
           qty: Number(item.qty || 1),
-          price: getItemPrice(item),
+          price: getPriceForPayment(item, paymentMethod),
           precioVenta: getItemPrice(item),
           image: getItemImage(item),
         })),
@@ -262,7 +269,7 @@ export default function Checkout() {
                   </span>
                 </div>
 
-                <strong>ARS {money(getItemPrice(item) * Number(item.qty || 1))}</strong>
+                <strong>ARS {money(getPriceForPayment(item, paymentMethod) * Number(item.qty || 1))}</strong>
               </article>
             ))}
           </div>
@@ -279,6 +286,13 @@ export default function Checkout() {
             <b>ARS {money(subtotal)}</b>
           </div>
 
+          {transferDiscount > 0 && (
+            <div className="summary-row ad-checkout-discount">
+              <span>Descuento por transferencia</span>
+              <b>− ARS {money(transferDiscount)}</b>
+            </div>
+          )}
+
           <div className="summary-row muted">
             <span>Envío</span>
             <b>A coordinar</b>
@@ -288,7 +302,7 @@ export default function Checkout() {
 
           <div className="summary-total">
             <span>Total</span>
-            <strong>ARS {money(subtotal)}</strong>
+            <strong>ARS {money(finalTotal)}</strong>
           </div>
 
           <button

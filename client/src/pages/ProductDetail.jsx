@@ -5,6 +5,7 @@ import { addToCart } from "../cart.js";
 import { mockProducts } from "../mockProducts.js";
 import ProductCard from "../components/ProductCard.jsx";
 import { getProductImages } from "../utils/productImages.js";
+import { getOffer } from "../utils/offer.js";
 
 const money = (n) => Number(n || 0).toLocaleString("es-AR");
 
@@ -178,6 +179,7 @@ export default function ProductDetail() {
   const variant = findVariant(product, size, color);
   const stock = Number(variant?.stock || 0);
   const canBuy = stock > 0 && qty <= stock;
+  const offer = getOffer(product);
 
   const handleAdd = () => {
     if (!canBuy) return;
@@ -194,6 +196,9 @@ export default function ProductDetail() {
       color,
       qty,
       stock,
+      enOferta: offer.active,
+      precioAnterior: offer.active ? offer.previous : 0,
+      precioTransferencia: offer.transfer,
     });
 
     setMsg("Producto agregado al carrito");
@@ -258,6 +263,7 @@ export default function ProductDetail() {
 
         <section className="main-photo">
           {product.badge && <span className="product-badge">{product.badge}</span>}
+          {offer.active && <span className="ad-offer-detail-badge">{offer.percent}% OFF</span>}
           <span className="heart big">♡</span>
 
           {images.length > 1 && (
@@ -297,7 +303,13 @@ export default function ProductDetail() {
 
           <h1>{product.nombre}</h1>
 
-          <h2>ARS {money(product.precioVenta)}</h2>
+          {offer.active && <s className="ad-offer-old-price ad-detail-old-price">ARS {money(offer.previous)}</s>}
+          <h2 className={offer.active ? "ad-offer-new-price" : ""}>ARS {money(product.precioVenta)}</h2>
+          {offer.active && offer.label !== `${offer.percent}% OFF` && <p className="ad-offer-note">{offer.label}</p>}
+          {offer.active && offer.note && <p className="ad-offer-note">{offer.note}</p>}
+          {offer.transfer > 0 && (
+            <p className="ad-offer-detail-transfer">ARS {money(offer.transfer)} pagando por transferencia</p>
+          )}
 
           <div className="divider" />
 
